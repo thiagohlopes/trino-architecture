@@ -1,0 +1,11 @@
+models:
+  dbt_project:
+    01_bronze:
+      materialized: table
+      +schema: bronze
+    02_silver:
+      materialized: table
+      +schema: silver
+    03_gold:
+      materialized: table
+      +schema: gold
