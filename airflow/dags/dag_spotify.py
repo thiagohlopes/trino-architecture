@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from airflow import DAG
+from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 from airflow.utils.task_group import TaskGroup
@@ -48,3 +49,11 @@ with DAG(
             python_callable=ingestion,
             op_kwargs={'genre': 'k-pop', 's3_path': 's3a://landing/spotify_recommend_tracks_kpop/'},
         )
+
+    with TaskGroup(group_id='spotify_transformation') as spotify_transformation:
+        dbt_build = BashOperator(
+            task_id='dbt_build',
+            bash_command='cd /opt/airflow/dags/dbt_project && dbt deps && dbt build --profiles-dir .',
+        )
+
+    spotify_ingestion >> spotify_transformation
